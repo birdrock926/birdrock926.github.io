@@ -109,9 +109,6 @@ marked.setOptions({
   renderer,
   gfm: true,
   breaks: true,
-  mangle: false,
-  headerIds: false,
-  smartLists: true,
 });
 
 const SIMPLE_WRAPPER_PATTERN = /^<(p|div)>([\s\S]*)<\/\1>$/i;

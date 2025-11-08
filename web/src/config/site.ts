@@ -81,11 +81,11 @@ const normalizeUnits = (units: HeaderBiddingUnit[]): HeaderBiddingUnit[] =>
             ? unit.mediaTypes.banner.sizes
                 .map((size) =>
                   Array.isArray(size) && size.length === 2
-                    ? [Number(size[0]) || 0, Number(size[1]) || 0]
+                    ? ([Number(size[0]) || 0, Number(size[1]) || 0] as [number, number])
                     : null
                 )
                 .filter((size): size is [number, number] => Boolean(size && size[0] > 0 && size[1] > 0))
-            : [[300, 250]],
+            : ([[300, 250]] as [number, number][]),
         },
       },
       bids: Array.isArray(unit.bids) ? unit.bids.filter((bid) => bid && bid.bidder) : [],
@@ -118,7 +118,7 @@ export const DELETE_REQUEST = {
 
 const twitchHosts = (import.meta.env.PUBLIC_TWITCH_PARENT_HOSTS ?? '')
   .split(',')
-  .map((host) => host.trim())
+  .map((host: string) => host.trim())
   .filter(Boolean);
 
 if (!twitchHosts.length) {

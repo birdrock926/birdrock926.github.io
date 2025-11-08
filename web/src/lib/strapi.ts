@@ -255,7 +255,7 @@ const parseTag = (tag: any): Tag | null => {
     name.trim();
   const id = Number.isFinite(Number(base.id)) ? Number(base.id) : undefined;
   return {
-    id: id ?? Math.abs(slug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)),
+    id: id ?? Math.abs(slug.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0)),
     name,
     slug,
   };
@@ -278,7 +278,7 @@ const normalizeBlock = (block: any): DynamicZoneBlock => {
     const alignmentValue =
       typeof block.alignment === 'string' ? block.alignment.trim().toLowerCase() : undefined;
     if (alignmentValue && RICH_TEXT_ALIGNMENTS.has(alignmentValue)) {
-      normalized.alignment = alignmentValue as DynamicZoneBlock['alignment'];
+      (normalized as any).alignment = alignmentValue;
     }
     return normalized;
   }
@@ -359,7 +359,7 @@ const normalizeBlock = (block: any): DynamicZoneBlock => {
           displayMode: displayMode === 'gif' || displayMode === 'image' ? displayMode : 'auto',
         } satisfies { image: Media; alt: string; displayMode?: 'auto' | 'image' | 'gif' };
       })
-      .filter((entry): entry is { image: Media; alt: string; displayMode?: 'auto' | 'image' | 'gif' } => Boolean(entry));
+      .filter((entry: unknown): entry is { image: Media; alt: string; displayMode?: 'auto' | 'image' | 'gif' } => Boolean(entry));
     return {
       __component: 'media.gallery',
       items,
@@ -913,7 +913,11 @@ export const getRanking = async () => {
       meta?: { count?: number };
     }>('/api/ranking');
     const items = ensureArray(res.data).filter(
-      (item): item is RankingItem => Boolean(item && item.slug && item.title)
+      (item: unknown): item is RankingItem => {
+        if (!item || typeof item !== 'object') return false;
+        const obj = item as Record<string, unknown>;
+        return Boolean(obj.slug && obj.title);
+      }
     );
     if (!items.length && res.meta?.count) {
       console.warn('[strapi] Ranking endpoint returned metadata without items.');
@@ -928,7 +932,7 @@ export const getRanking = async () => {
 export const getTwitchParentHosts = () => {
   const fallback = typeof window !== 'undefined' ? window.location.hostname : undefined;
   const hosts = new Set<string>();
-  TWITCH.parentHosts.forEach((host) => hosts.add(host));
+  TWITCH.parentHosts.forEach((host: string) => hosts.add(host));
   if (fallback) {
     hosts.add(fallback);
   }

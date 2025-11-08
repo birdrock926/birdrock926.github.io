@@ -60,43 +60,45 @@ const normalizeAuthor = (value: any): CommentAuthor | null => {
   const badgeValue = typeof value.badge === 'string' ? value.badge : undefined;
   const badgesValue = Array.isArray(value.badges)
     ? value.badges
-        .map((badge) => {
+        .map((badge: unknown) => {
           if (typeof badge === 'string') {
             return badge;
           }
           if (badge && typeof badge === 'object') {
-            if (typeof badge.name === 'string') {
-              return badge.name;
+            const badgeObj = badge as Record<string, unknown>;
+            if (typeof badgeObj.name === 'string') {
+              return badgeObj.name;
             }
-            if (typeof badge.label === 'string') {
-              return badge.label;
+            if (typeof badgeObj.label === 'string') {
+              return badgeObj.label;
             }
-            if (typeof badge.title === 'string') {
-              return badge.title;
+            if (typeof badgeObj.title === 'string') {
+              return badgeObj.title;
             }
           }
           return null;
         })
-        .filter((badge): badge is string => typeof badge === 'string' && badge.trim().length > 0)
+        .filter((badge: unknown): badge is string => typeof badge === 'string' && badge.trim().length > 0)
     : undefined;
   const roleValue = typeof value.role === 'string' ? value.role : undefined;
   const rolesValue = Array.isArray(value.roles)
     ? value.roles
-        .map((role) => {
+        .map((role: unknown) => {
           if (typeof role === 'string') {
             return role;
           }
           if (role && typeof role === 'object') {
-            if (typeof role.name === 'string') {
-              return role.name;
+            const roleObj = role as Record<string, unknown>;
+            if (typeof roleObj.name === 'string') {
+              return roleObj.name;
             }
-            if (typeof role.type === 'string') {
-              return role.type;
+            if (typeof roleObj.type === 'string') {
+              return roleObj.type;
             }
           }
           return null;
         })
-        .filter((role): role is string => typeof role === 'string' && role.trim().length > 0)
+        .filter((role: unknown): role is string => typeof role === 'string' && role.trim().length > 0)
     : undefined;
   const typeValue = typeof value.type === 'string' ? value.type : undefined;
 
@@ -129,7 +131,7 @@ const normalizeAuthor = (value: any): CommentAuthor | null => {
   }
 
   if (rolesValue && rolesValue.length > 0) {
-    author.roles = Array.from(new Set(rolesValue.map((role) => role.trim())));
+    author.roles = Array.from(new Set(rolesValue.map((role: string) => role.trim())));
   }
 
   if (typeof typeValue === 'string' && typeValue.trim().length > 0) {
@@ -181,8 +183,8 @@ const normalizeComment = (value: any): CommentNode | null => {
 
   const children = Array.isArray(value.children)
     ? value.children
-        .map((child) => normalizeComment(child))
-        .filter((child): child is CommentNode => Boolean(child))
+        .map((child: unknown) => normalizeComment(child))
+        .filter((child: unknown): child is CommentNode => Boolean(child))
     : undefined;
 
   const approvalStatus = typeof value.approvalStatus === 'string' ? value.approvalStatus : undefined;

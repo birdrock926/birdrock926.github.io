@@ -328,7 +328,7 @@ const articleFontClass = `card article-body article-body--${post.bodyFontScale ?
         <time dateTime={post.publishedAt}>{formatDateTime(post.publishedAt)}</time>
         {post.author && <span>著者: {post.author}</span>}
         {post.source && (
-          <a href={post.source} target="_blank" rel="noopener" class="tag-chip">
+          <a href={post.source} target="_blank" rel="noopener noreferrer" class="tag-chip">
             出典を見る
           </a>
         )}

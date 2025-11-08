@@ -233,7 +233,7 @@ const sanitizeAltText = (value?: string): string => {
     return '';
   }
 
-  return value.replace(/[\r\n]+/g, ' ').replace(/[\[\](),]/g, ' ').replace(/\s+/g, ' ').trim();
+  return value.replace(/[\r\n]+/g, ' ').replace(/[[\](),]/g, ' ').replace(/\s+/g, ' ').trim();
 };
 
 const normalizeParagraphImages = (paragraph: string): string =>
@@ -905,6 +905,7 @@ const CommentsApp = ({ headingId, documentId, entryId, slug, config, defaultAuth
       }
 
       if (!nextState) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { [commentId]: _removed, ...rest } = previous;
         return rest;
       }
@@ -1348,7 +1349,7 @@ const CommentsApp = ({ headingId, documentId, entryId, slug, config, defaultAuth
                 >
                   前へ
                 </button>
-                <ul className="comments-pagination__list" role="list">
+                <ul className="comments-pagination__list">
                   {paginationItems.map((item, index) =>
                     typeof item === 'number' ? (
                       <li key={`page-${item}`}>

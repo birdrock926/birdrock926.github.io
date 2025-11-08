@@ -126,6 +126,7 @@ const normalizeMarkdownWhitespace = (value: string) =>
 const stripSimpleWrappers = (value: string) => {
   let current = value.trim();
 
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     const match = current.match(SIMPLE_WRAPPER_PATTERN);
     if (!match) {
@@ -157,9 +158,10 @@ const sanitizeTagUrls = (html: string) => {
     source: string,
     pattern: RegExp,
     attr: 'href' | 'src',
-    resolver: (value: string) => string | null,
+    resolver: (_value: string) => string | null,
   ) =>
     source.replace(pattern, (full) => {
+      // eslint-disable-next-line no-useless-escape
       const attrPattern = new RegExp(`(${attr}\\s*=\\s*)("([^"\\n]*)"|'([^'\\n]*)'|([^\s>]+))`, 'i');
       const match = full.match(attrPattern);
       if (!match) {

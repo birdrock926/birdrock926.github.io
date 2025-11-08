@@ -8,8 +8,10 @@ interface ImportMetaEnv {
   readonly PUBLIC_COMMENTS_DEFAULT_AUTHOR?: string;
 }
 
+/* eslint-disable no-redeclare, no-unused-vars */
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+/* eslint-enable no-redeclare, no-unused-vars */
 
 export {};

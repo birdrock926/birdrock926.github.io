@@ -129,9 +129,9 @@ const organizationJsonLd = {
     {measurementId && (
       <>
         <script async src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}></script>
-        <script is:inline>
-          const consentRegion = JSON.parse('{regionJSON}');
-          const measurement = JSON.parse('{measurementJSON}');
+        <script is:inline define:vars={{ regionJSON, measurementJSON }}>
+          const consentRegion = JSON.parse(regionJSON);
+          const measurement = JSON.parse(measurementJSON);
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('consent', 'default', {

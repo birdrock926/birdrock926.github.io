@@ -39,7 +39,7 @@ const SearchIsland = ({ posts }: Props) => {
     raw
       .trim()
       .split(/\s+/)
-      .map((token) => token.replace(/[!^~*:+\-]/g, '').toLowerCase())
+      .map((token) => token.replace(/[!^~*:+-]/g, '').toLowerCase())
       .filter((token) => token.length > 0);
 
   const tagFacets = useMemo<TagFacet[]>(() => {
@@ -179,7 +179,6 @@ const SearchIsland = ({ posts }: Props) => {
                   className={`tag-chip${isActive ? ' is-active' : ''}`}
                   onClick={() => toggleTag(tag.slug)}
                   aria-pressed={isActive}
-                  role="listitem"
                 >
                   <span>{tag.name}</span>
                   <span className="tag-chip__count" aria-hidden="true">

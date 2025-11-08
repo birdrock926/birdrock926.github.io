@@ -1,0 +1,18 @@
+# Build outputs
+build/
+dist/
+.cache/
+
+# Dependencies
+node_modules/
+
+# Generated files
+.tmp/
+.strapi/
+.env
+
+# Test coverage
+coverage/
+
+# Logs
+*.log

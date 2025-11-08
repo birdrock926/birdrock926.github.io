@@ -1,5 +1,6 @@
 import type { HeaderBiddingUnit } from '@config/site';
 
+/* eslint-disable no-unused-vars */
 declare global {
   interface Window {
     pbjs: any;

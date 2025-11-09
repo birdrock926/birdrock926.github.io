@@ -1,0 +1,107 @@
+# ===============================
+# Caddy Configuration for VPS
+# Reverse Proxy to Astro SSR Server
+# ===============================
+
+{
+    # Global options
+    email admin@{$DOMAIN:yoursite.com}
+
+    # ACME（Let's Encrypt）設定
+    acme_ca https://acme-v02.api.letsencrypt.org/directory
+
+    # ログレベル
+    log {
+        level INFO
+    }
+}
+
+# メインサイト
+{$DOMAIN:yoursite.com} {
+    # アクセスログ
+    log {
+        output file /var/log/caddy/access.log {
+            roll_size 100mb
+            roll_keep 5
+            roll_keep_for 720h
+        }
+        format json
+    }
+
+    # エンコーディング
+    encode gzip zstd
+
+    # セキュリティヘッダー
+    header {
+        # HSTS
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+        # XSS保護
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        X-XSS-Protection "1; mode=block"
+
+        # リファラーポリシー
+        Referrer-Policy "no-referrer-when-downgrade"
+
+        # Permissions Policy
+        Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=()"
+
+        # サーバー情報を隠す
+        -Server
+    }
+
+    # ヘルスチェックエンドポイント
+    handle /health {
+        respond "OK" 200
+    }
+
+    # /_astro/* 静的アセット（Cloudflare Pagesにフォールバック）
+    handle /_astro/* {
+        reverse_proxy astro:4321 {
+            header_up Host {host}
+            header_up X-Real-IP {remote}
+            header_up X-Forwarded-For {remote}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # すべてのリクエストをAstro SSRに転送
+    handle {
+        reverse_proxy astro:4321 {
+            # ヘッダー設定
+            header_up Host {host}
+            header_up X-Real-IP {remote}
+            header_up X-Forwarded-For {remote}
+            header_up X-Forwarded-Proto {scheme}
+
+            # タイムアウト設定
+            transport http {
+                dial_timeout 5s
+                response_header_timeout 30s
+                read_timeout 30s
+            }
+
+            # ヘルスチェック
+            health_uri /health
+            health_interval 30s
+            health_timeout 5s
+        }
+    }
+
+    # エラーページ
+    handle_errors {
+        @5xx expression `{err.status_code} >= 500 && {err.status_code} < 600`
+        rewrite @5xx /50x.html
+
+        @4xx expression `{err.status_code} >= 400 && {err.status_code} < 500`
+        rewrite @4xx /404.html
+
+        file_server
+    }
+}
+
+# www リダイレクト（オプション）
+www.{$DOMAIN:yoursite.com} {
+    redir https://{$DOMAIN:yoursite.com}{uri} permanent
+}

@@ -1,0 +1,68 @@
+# ===============================
+# VPS用 Docker Compose設定
+# Cloudflare Pages + VPS SSR構成
+# ===============================
+version: '3.8'
+
+services:
+  # Astro SSRサーバー
+  astro:
+    build:
+      context: ../../web
+      dockerfile: Dockerfile
+    container_name: astro-ssr
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 4321
+      # Cloudflare Tunnel経由で自宅Strapiに接続
+      STRAPI_URL: ${STRAPI_URL:-https://cms.yoursite.com}
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-https://yoursite.com}
+      # コメント機能
+      PUBLIC_COMMENTS_ENABLED: ${PUBLIC_COMMENTS_ENABLED:-true}
+      PUBLIC_COMMENTS_REQUIRE_APPROVAL: ${PUBLIC_COMMENTS_REQUIRE_APPROVAL:-false}
+      # Google Analytics
+      PUBLIC_GA_MEASUREMENT_ID: ${PUBLIC_GA_MEASUREMENT_ID:-}
+      # その他の環境変数
+      TZ: Asia/Tokyo
+    restart: unless-stopped
+    networks:
+      - web
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4321/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+  # Caddy リバースプロキシ & HTTPS
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp" # HTTP/3 QUIC
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      DOMAIN: ${DOMAIN:-yoursite.com}
+      TZ: Asia/Tokyo
+    depends_on:
+      astro:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - web
+
+networks:
+  web:
+    driver: bridge
+
+volumes:
+  caddy_data:
+    name: caddy_data
+  caddy_config:
+    name: caddy_config
